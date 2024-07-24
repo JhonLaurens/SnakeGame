@@ -1,0 +1,143 @@
+:root {
+    --background-color: #a8d5ba; /* Fondo de selva */
+    --board-background: #4caf50; /* Verde selva */
+    --snake-color: #ffeb3b; /* Amarillo brillante */
+    --food-color: #ff5722; /* Naranja brillante */
+    --text-color: #1b5e20; /* Verde oscuro */
+    --button-color: #8bc34a; /* Verde claro */
+    --button-hover-color: #7cb342; /* Verde más oscuro */
+    --game-over-bg: rgba(0, 0, 0, 0.8);
+}
+
+body {
+    font-family: 'Comic Sans MS', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: var(--background-color);
+    overflow: hidden;
+}
+
+#main-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+#game-container {
+    text-align: center;
+    max-width: 100%;
+    padding: 20px;
+}
+
+#button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-left: 20px; /* Añadido para separar el botón del tablero */
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-rows: repeat(20, 1fr);
+    gap: 1px;
+    background-color: var(--board-background);
+    border: 2px solid var(--text-color);
+    margin: 0 auto;
+    width: 90vw;
+    height: 90vw;
+    max-width: 500px;
+    max-height: 500px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in-out;
+}
+
+#start-button, #restart-button {
+    font-size: 18px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: var(--button-color);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#start-button:hover, #restart-button:hover {
+    background-color: var(--button-hover-color);
+    transform: scale(1.05);
+}
+
+#game-over {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--game-over-bg);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    text-align: center;
+    animation: fadeIn 1s ease-in-out;
+}
+
+#high-score-form {
+    margin-top: 10px;
+}
+
+#player-name {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid var(--text-color);
+}
+
+@media (max-width: 480px) {
+    #game-board {
+        width: 90vw;
+        height: 90vw;
+    }
+    #score {
+        font-size: 20px;
+    }
+    #start-button, #restart-button {
+        font-size: 16px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}

@@ -1,10 +1,11 @@
-// Configuración del juego
-const gridSize = 20;
-const cellSize = 20;
-const initialSnakeLength = 3;
-const initialSpeed = 200; // milisegundos
+// GAME\js\snake-game.js
 
-// Variables del juego
+// Game configuration (now from PHP)
+const gridSize = gameSettings.gridSize;
+const initialSnakeLength = gameSettings.initialSnakeLength;
+const initialSpeed = gameSettings.initialSpeed; // milliseconds
+
+// Game variables
 let snake = [];
 let food = null;
 let direction = 'right';
@@ -12,7 +13,7 @@ let score = 0;
 let gameInterval = null;
 let gameSpeed = initialSpeed;
 
-// Elementos del DOM
+// DOM elements
 const gameBoard = document.getElementById('game-board');
 const scoreElement = document.getElementById('score');
 const startButton = document.getElementById('start-button');
@@ -20,7 +21,7 @@ const gameOverScreen = document.getElementById('game-over');
 const finalScoreElement = document.getElementById('final-score');
 const restartButton = document.getElementById('restart-button');
 
-// Inicialización del tablero
+// Initialize the board
 function initializeBoard() {
     gameBoard.innerHTML = '';
     for (let i = 0; i < gridSize * gridSize; i++) {
@@ -30,7 +31,7 @@ function initializeBoard() {
     }
 }
 
-// Inicialización de la culebrita
+// Initialize the snake
 function initializeSnake() {
     snake = [];
     const middle = Math.floor(gridSize / 2);
@@ -39,36 +40,34 @@ function initializeSnake() {
     }
 }
 
-// Generar comida aleatoria
+// Generate random food
 function generateFood() {
-    while (true) {
+    do {
         food = {
             x: Math.floor(Math.random() * gridSize),
             y: Math.floor(Math.random() * gridSize)
         };
-        if (!snake.some(segment => segment.x === food.x && segment.y === food.y)) {
-            break;
-        }
-    }
+    } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
 }
 
-// Actualizar el tablero
+// Update the board
 function updateBoard() {
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => cell.className = 'cell');
 
-    snake.forEach(segment => {
-        const index = segment.y * gridSize + segment.x;
-        cells[index].classList.add('snake');
+    snake.forEach((segment, index) => {
+        const cellIndex = segment.y * gridSize + segment.x;
+        cells[cellIndex].classList.add('snake');
+        if (index === 0) cells[cellIndex].classList.add('snake-head');
     });
 
     const foodIndex = food.y * gridSize + food.x;
     cells[foodIndex].classList.add('food');
 
-    scoreElement.textContent = `Puntuación: ${score}`;
+    scoreElement.textContent = `Score: ${score}`;
 }
 
-// Mover la culebrita
+// Move the snake
 function moveSnake() {
     const head = {...snake[0]};
 
@@ -79,7 +78,7 @@ function moveSnake() {
         case 'right': head.x++; break;
     }
 
-    // Verificar colisiones
+    // Check collisions
     if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize ||
         snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         endGame();
@@ -88,7 +87,7 @@ function moveSnake() {
 
     snake.unshift(head);
 
-    // Verificar si la culebrita come
+    // Check if snake eats food
     if (head.x === food.x && head.y === food.y) {
         score++;
         generateFood();
@@ -100,23 +99,24 @@ function moveSnake() {
     updateBoard();
 }
 
-// Aumentar la velocidad
+// Increase speed
 function increaseSpeed() {
     if (gameSpeed > 50) {
-        gameSpeed -= 10;
+        gameSpeed -= 5;
         clearInterval(gameInterval);
         gameInterval = setInterval(moveSnake, gameSpeed);
     }
 }
 
-// Finalizar el juego
+// End the game
 function endGame() {
     clearInterval(gameInterval);
     finalScoreElement.textContent = score;
     gameOverScreen.style.display = 'block';
+    document.getElementById('high-score-form').style.display = 'block';
 }
 
-// Iniciar el juego
+// Start the game
 function startGame() {
     initializeBoard();
     initializeSnake();
@@ -128,13 +128,14 @@ function startGame() {
     if (gameInterval) clearInterval(gameInterval);
     gameInterval = setInterval(moveSnake, gameSpeed);
     startButton.disabled = true;
-    gameOverScreen.style.style.display = 'none';
+    gameOverScreen.style.display = 'none';
 }
 
 // Event Listeners
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
 
+// Keyboard controls
 document.addEventListener('keydown', (event) => {
     switch (event.key) {
         case 'ArrowUp': if (direction !== 'down') direction = 'up'; break;
@@ -144,5 +145,53 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// Inicialización inicial
+// Touch controls for mobile
+let touchStartX = 0;
+let touchStartY = 0;
+
+gameBoard.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, false);
+
+gameBoard.addEventListener('touchend', (e) => {
+    let touchEndX = e.changedTouches[0].screenX;
+    let touchEndY = e.changedTouches[0].screenY;
+    handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
+}, false);
+
+function handleSwipe(startX, startY, endX, endY) {
+    const dx = endX - startX;
+    const dy = endY - startY;
+    
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && direction !== 'left') direction = 'right';
+        else if (dx < 0 && direction !== 'right') direction = 'left';
+    } else {
+        if (dy > 0 && direction !== 'up') direction = 'down';
+        else if (dy < 0 && direction !== 'down') direction = 'up';
+    }
+}
+
+// High score submission
+document.getElementById('high-score-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('player-name').value;
+    
+    fetch('snake-game.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `name=${encodeURIComponent(name)}&score=${score}`
+    })
+    .then(response => response.text())
+    .then(() => {
+        alert('High score submitted!');
+        location.reload(); // Reload to update high scores
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// Initial board setup
 initializeBoard();
