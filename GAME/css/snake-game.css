@@ -5,13 +5,12 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background-color: #ffffff; /* Fondo más claro */
+    color: #f7f2f2; /* Texto más oscuro */
 }
-
 #game-container {
     text-align: center;
 }
-
 #game-board {
     display: grid;
     grid-template-columns: repeat(20, 20px);
@@ -20,17 +19,14 @@ body {
     background-color: #ccc;
     border: 1px solid #999;
 }
-
 .cell {
     width: 20px;
     height: 20px;
-    background-color: #fff; /* Actualización: color de fondo de las celdas */
+    background-color: #fff; /* Color de fondo de las celdas */
 }
-
 .snake {
-    background-color: #000; /* Actualización: color de la serpiente */
+    background-color: #000; /* Color de la serpiente */
 }
-
 .food {
-    background-color: #f00; /* Actualización: color de la comida */
+    background-color: #f00; /* Color de la comida */
 }
